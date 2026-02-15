@@ -1,10 +1,14 @@
 import os
-import argparse
+# import argparse
 import pandas as pd
 import sqlite3
 
 
-Data_dir = 'sqlite_exports'
+# Dossier des CSV
+#DATA_DIR = 'sqlite_exports'  
+# Dossier de sortie
+OUTPUT_DIR = 'outputs'       
+Data_dir = os.getcwd()
 # EXTRACT - Lire les fichiers CSV
 def read_csv_file(file_name):
     """
@@ -249,22 +253,26 @@ def transform_data(dataframes):
 
         return result
 
-#===========================================================================================================
+
+
+
+
+#============================================================================================
 # Load & exporter les resultats
 #============================================================================================
-import os
-from pickle import load
+
+# from pickle import load
 
 
 def load_data(transformed_data):
     """
-    T1 load: esporter en CSV et SQLite
-    """"
-    print("\n" + "=" *60)
+     load: esporter en CSV et SQLite
+    """
+    print("\n" + "=" * 60)
     print("etap 3; Load  export  des donnees")
-    print("=" *60)
+    print("=" * 60)
 
-    # creer le dossier de sortie
+    # Creons le dossier de sortie
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
 
@@ -274,6 +282,7 @@ def load_data(transformed_data):
         filepath= os.path.join(OUTPUT_DIR, f"{name}.csv")
         df.to_csv(filepath, index= False)
         print("f    {name}.csv ({len(df):,}lignes)")
+
     # Expport SQLITE
     sqlite_path= os.path.join(OUTPUT_DIR, "etl.db")
     print(f"\n2. Export Sqlite: {sqlite_path}")
@@ -289,11 +298,11 @@ def load_data(transformed_data):
 
 def generer_rapport (dataframes , transformed_data):
     """    
-    T2 Generer un rapport simple
+     Generer un rapport simple
     """
 print("\n" + "="* 60)
 print(" geration du rapporta")
-print("=",* 60)
+print("=" * 60)
 
 rapport= []
 rapport.append("=" * 70)
@@ -328,40 +337,40 @@ for name, df in dataframes.items():
          
 
         
-          rapport.append(f"    - Categories uniques: {df['category'].nunique()}")
+# rapport.append(f"    - Categories uniques: {df['category'].nunique()}")
 
-          rapport.append(f"\n" + "=" * 70)
+rapport.append(f"\n" + "=" * 70)
           
-          # Ecrire le rapport
-            rapport_path= os.path.join(OUTPUT_DIR, "rapport_etl.txt")
-            with open(rapport_path, "w" , encoding="utf-8") as f:
-                f.write("\n".join(rapport))
-            print(f"Rapport generer: {rapport_path}")
+# Ecrire le rapport
+rapport_path= os.path.join(OUTPUT_DIR, "rapport_etl.txt")
+with open(rapport_path, "w" , encoding="utf-8") as f:
+    f.write("\n".join(rapport))
+    print(f"Rapport generer: {rapport_path}")
           
 
 #=========================================================================
 # min  fonction principale
-# 
+#========================================================================= 
 def main():
     """
     Orchestre tout le processus ETL
     """
     print("\n" + "=" * 60)
-    print("*" TP ETL debutant -PYTHON+Pandas".center")
-    print("*" + "\n")
+    print("* TP ETL debutant -PYTHON+Pandas".center)
+    print("*" * 55 + "\n")
 
     # Etape 1: Extraction
     dataframes= extract()
 
     #Etape 2:  Transformation
-    transformed_data= transform(dataframes)
+    transformed_data= transform_data(dataframes)
 
     # Etape 3: Load
-    load_data(transformed_data)
+    #load_data(transformed_data)
 
 
     # Generer le rapport
-    generer_rapport(dataframes, transformed_data)
+    # generer_rapport(dataframes, transformed_data)
 
 
     # Resume final
@@ -369,12 +378,18 @@ def main():
     print("Traitement ETL termine avec succes!")
     print("=" * 60)
     print("f    Resultats dans: {OUTPUT_DIR}/")
-    print("f    "Resultats dans: "fichiers sources")
+    print("f    {len(dataframes)} fichiers sources")
     print("f    {len(transformed_data)} tables creees")
     print("=" * 60 + "\n")
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
 
 
 
