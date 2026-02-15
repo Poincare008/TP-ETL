@@ -152,7 +152,7 @@ def transform_data(dataframes):
     # Products avec traduction
     products = duplicate_remove(dataframes['products'],'product_id')
     translation = dataframes['translation']
-    prproducts = products.merge(translation, on='product_category_name', how='left')
+    products = products.merge(translation, on='product_category_name', how='left')
     result['dim_products'] = products
     print(f"   dim_products: {len(products):,} lignes (avec traduction)")
 
@@ -231,7 +231,7 @@ def transform_data(dataframes):
         # Filtrage des valeurs aberrantes
         fact_delivery = fact_delivery[
             (fact_delivery['delivery_days'] >= 0) &
-            (fact_delivery['delivery_days'] >= 365)
+            (fact_delivery['delivery_days'] <= 365)
         ]
 
 
@@ -248,7 +248,7 @@ def transform_data(dataframes):
         reviews_monthly = reviews.groupby('year_month')['review_score'].mean().reset_index()
         reviews_monthly.columns = ['year_month','avg_review_score']
         result['reviews_monthly'] = reviews_monthly
-        print(' reviews_monthly:{len(reviews_monthly)} mois')
+        print(f' reviews_monthly (Bonus): {len(reviews_monthly)} mois')
 
 
         return result
@@ -277,19 +277,19 @@ def load_data(transformed_data):
         os.makedirs(OUTPUT_DIR)
 
     # Export csv
-    print(f"\n1.export CSV dans {OUTPUT_DIR}/")
+    print(f" \n1.export CSV dans {OUTPUT_DIR}/")
     for name, df in transformed_data.items():
         filepath= os.path.join(OUTPUT_DIR, f"{name}.csv")
         df.to_csv(filepath, index= False)
-        print("f    {name}.csv ({len(df):,}lignes)")
+        print(f"    {name}.csv ({len(df):,}lignes)")
 
     # Expport SQLITE
     sqlite_path= os.path.join(OUTPUT_DIR, "etl.db")
     print(f"\n2. Export Sqlite: {sqlite_path}")
 
-    conn = sqlite3.conect(sqlite_path)
+    conn = sqlite3.connect(sqlite_path)
     for name, df in transformed_data.items():
-        df.to_sql(name, conn, if_exist="replace", index= False)
+        df.to_sql(name, conn, if_exists="replace", index= False)
         print(f"    Table{name} ({len(df):,} lignes)")
     conn.close()
 
@@ -300,38 +300,38 @@ def generer_rapport (dataframes , transformed_data):
     """    
      Generer un rapport simple
     """
-print("\n" + "="* 60)
-print(" geration du rapporta")
-print("=" * 60)
+    print("\n" + "="* 60)
+    print(" geration du rapporta")
+    print("=" * 60)
 
-rapport= []
-rapport.append("=" * 70)
-rapport.append("rapport ETL_Tp debutant")
-rapport.append("=" * 70)
-rapport.append ("")
+    rapport= []
+    rapport.append("=" * 70)
+    rapport.append("rapport ETL_Tp debutant")
+    rapport.append("=" * 70)
+    rapport.append ("")
 
- # donnees sources
-rapport.append(" donneees sources")
-rapport.append("-" * 70)
-for name, df in dataframes.items():
-    rapport.append(f"\n({name}: ")
-    rapport.append(f"    - Lignes: {len(df):,}")
-    rapport.append(f"    - Colonnes: {len(df.columns)}")
-    rapport.append(f"    - Valeurs manquantes: {df.isna().sum().sum():,}")
-                                    
- # donnees transformees
-rapport.append("\n\n Donnees transformees")
-rapport.append("-" * 70)
-for name, df in dataframes.items():
-    rapport.append(f"\n({name}: {len(df):,} lignes")
+    # donnees sources
+    rapport.append(" donneees sources")
+    rapport.append("-" * 70)
+    for name, df in dataframes.items():
+        rapport.append(f"\n{name}:")
+        rapport.append(f"    - Lignes: {len(df):,}")
+        rapport.append(f"    - Colonnes: {len(df.columns)}")
+        rapport.append(f"    - Valeurs manquantes: {df.isna().sum().sum():,}")
+                                        
+    # donnees transformees
+    rapport.append("\n\n Donnees transformees")
+    rapport.append("-" * 70)
+    for name, df in transformed_data.items():
+        rapport.append(f"\n({name}: {len(df):,} lignes")
 
-    if name== "monthly_revenue":
-        rapport.append(f"    - Total revenue: {df['revenue'].sum():,.2f}")
-    elif name== "category_revenue":
-          rapport.append(f"    - Top 1: {df.iloc[0]["product_category"]}")
-    elif name== "delivery_metrics":
-          rapport.append(f"    - Delai moyen: {df['avg_delivery_days'].mean():.1f} jours")
-                                              
+        if name == "monthly_revenue":
+            rapport.append(f"    - Total revenue: {df['revenue'].sum():,.2f}")
+        elif name == "top_categories":
+            rapport.append(f"  → Top 1: {df.iloc[0]['product_category']}")
+        elif name == "delivery_metrics":
+            rapport.append(f"    - Delai moyen: {df['avg_delivery_days'].mean():.1f} jours")
+                                                
                          
           
          
@@ -366,20 +366,20 @@ def main():
     transformed_data= transform_data(dataframes)
 
     # Etape 3: Load
-    #load_data(transformed_data)
+    load_data(transformed_data)
 
 
     # Generer le rapport
-    # generer_rapport(dataframes, transformed_data)
+    generer_rapport(dataframes, transformed_data)
 
 
     # Resume final
     print("=" * 60)
     print("Traitement ETL termine avec succes!")
     print("=" * 60)
-    print("f    Resultats dans: {OUTPUT_DIR}/")
-    print("f    {len(dataframes)} fichiers sources")
-    print("f    {len(transformed_data)} tables creees")
+    print(f"    Resultats dans: {OUTPUT_DIR}/")
+    print(f"    {len(dataframes)} fichiers sources")
+    print(f"    {len(transformed_data)} tables creees")
     print("=" * 60 + "\n")
 
 if __name__ == "__main__":
