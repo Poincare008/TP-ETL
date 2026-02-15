@@ -337,15 +337,15 @@ def generer_rapport (dataframes , transformed_data):
          
 
         
-# rapport.append(f"    - Categories uniques: {df['category'].nunique()}")
+    # rapport.append(f"    - Categories uniques: {df['category'].nunique()}")
 
-rapport.append(f"\n" + "=" * 70)
-          
-# Ecrire le rapport
-rapport_path= os.path.join(OUTPUT_DIR, "rapport_etl.txt")
-with open(rapport_path, "w" , encoding="utf-8") as f:
-    f.write("\n".join(rapport))
-    print(f"Rapport generer: {rapport_path}")
+    rapport.append(f"\n" + "=" * 70)
+            
+    # Ecrire le rapport
+    rapport_path= os.path.join(OUTPUT_DIR, "rapport_etl.txt")
+    with open(rapport_path, "w" , encoding="utf-8") as f:
+        f.write("\n".join(rapport))
+        print(f"Rapport generer: {rapport_path}")
           
 
 #=========================================================================
