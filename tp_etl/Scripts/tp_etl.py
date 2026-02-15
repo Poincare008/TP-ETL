@@ -249,6 +249,132 @@ def transform_data(dataframes):
 
         return result
 
+#===========================================================================================================
+# Load & exporter les resultats
+#============================================================================================
+import os
+from pickle import load
+
+
+def load_data(transformed_data):
+    """
+    T1 load: esporter en CSV et SQLite
+    """"
+    print("\n" + "=" *60)
+    print("etap 3; Load  export  des donnees")
+    print("=" *60)
+
+    # creer le dossier de sortie
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+
+    # Export csv
+    print(f"\n1.export CSV dans {OUTPUT_DIR}/")
+    for name, df in transformed_data.items():
+        filepath= os.path.join(OUTPUT_DIR, f"{name}.csv")
+        df.to_csv(filepath, index= False)
+        print("f    {name}.csv ({len(df):,}lignes)")
+    # Expport SQLITE
+    sqlite_path= os.path.join(OUTPUT_DIR, "etl.db")
+    print(f"\n2. Export Sqlite: {sqlite_path}")
+
+    conn = sqlite3.conect(sqlite_path)
+    for name, df in transformed_data.items():
+        df.to_sql(name, conn, if_exist="replace", index= False)
+        print(f"    Table{name} ({len(df):,} lignes)")
+    conn.close()
+
+    print(f"\n Base Sqlite cree: {sqlite_path}")
+
+
+def generer_rapport (dataframes , transformed_data):
+    """    
+    T2 Generer un rapport simple
+    """
+print("\n" + "="* 60)
+print(" geration du rapporta")
+print("=",* 60)
+
+rapport= []
+rapport.append("=" * 70)
+rapport.append("rapport ETL_Tp debutant")
+rapport.append("=" * 70)
+rapport.append ("")
+
+ # donnees sources
+rapport.append(" donneees sources")
+rapport.append("-" * 70)
+for name, df in dataframes.items():
+    rapport.append(f"\n({name}: ")
+    rapport.append(f"    - Lignes: {len(df):,}")
+    rapport.append(f"    - Colonnes: {len(df.columns)}")
+    rapport.append(f"    - Valeurs manquantes: {df.isna().sum().sum():,}")
+                                    
+ # donnees transformees
+rapport.append("\n\n Donnees transformees")
+rapport.append("-" * 70)
+for name, df in dataframes.items():
+    rapport.append(f"\n({name}: {len(df):,} lignes")
+
+    if name== "monthly_revenue":
+        rapport.append(f"    - Total revenue: {df['revenue'].sum():,.2f}")
+    elif name== "category_revenue":
+          rapport.append(f"    - Top 1: {df.iloc[0]["product_category"]}")
+    elif name== "delivery_metrics":
+          rapport.append(f"    - Delai moyen: {df['avg_delivery_days'].mean():.1f} jours")
+                                              
+                         
+          
+         
+
+        
+          rapport.append(f"    - Categories uniques: {df['category'].nunique()}")
+
+          rapport.append(f"\n" + "=" * 70)
+          
+          # Ecrire le rapport
+            rapport_path= os.path.join(OUTPUT_DIR, "rapport_etl.txt")
+            with open(rapport_path, "w" , encoding="utf-8") as f:
+                f.write("\n".join(rapport))
+            print(f"Rapport generer: {rapport_path}")
+          
+
+#=========================================================================
+# min  fonction principale
+# 
+def main():
+    """
+    Orchestre tout le processus ETL
+    """
+    print("\n" + "=" * 60)
+    print("*" TP ETL debutant -PYTHON+Pandas".center")
+    print("*" + "\n")
+
+    # Etape 1: Extraction
+    dataframes= extract()
+
+    #Etape 2:  Transformation
+    transformed_data= transform(dataframes)
+
+    # Etape 3: Load
+    load_data(transformed_data)
+
+
+    # Generer le rapport
+    generer_rapport(dataframes, transformed_data)
+
+
+    # Resume final
+    print("=" * 60)
+    print("Traitement ETL termine avec succes!")
+    print("=" * 60)
+    print("f    Resultats dans: {OUTPUT_DIR}/")
+    print("f    "Resultats dans: "fichiers sources")
+    print("f    {len(transformed_data)} tables creees")
+    print("=" * 60 + "\n")
+
+if __name__ == "__main__":
+    main()
 
 
 
