@@ -198,6 +198,56 @@ def transform_data(dataframes):
     if 'order_purchase_timestamp' in fact.columns:
         fact['year_month'] = fact['order_purchase_timestamp'].dt.to_period('M').astype(str)
 
+        # Revenu mensuel
+        monthly_revenue = fact.groupby('year_month')['item_total'].sum().reset_index()
+        monthly_revenue.columns = ['year_month','revenue']
+        monthly_revenue = monthly_revenue.sort_values('year_month')
+        result['monthly_revenue'] = monthly_revenue
+        print(f'monthly_revenue: {len(monthly_revenue)} mois')
+
+        # Top Categories
+        category_col = 'product_category_name_english' if 'product_category_name_english' in fact.columns else 'product_category_name'
+        if category_col in fact.columns:
+            top_categories = fact.groupby(category_col)['item_total'].sum().reset_index()
+            top_categories.columns = ['product_category', 'revenue']
+            top_categories = top_categories.sort_values('revenue',ascending=False).head(10)
+            result['top_categories'] = top_categories
+            print(f'top_categories: {len(top_categories)} 10 catégories')
+
+
+        # Delais de livraison
+        if 'order_delivered_customer_date' in fact.columns:
+            fact_delivery = fact[fact['order_delivered_customer_date'].notna()].copy()
+            fact_delivery['delivery_days'] = (
+                fact_delivery['order_delivered_customer_date'] - 
+                fact_delivery['order_purchase_timestamp']
+            ).dt.total_seconds() / (24*3600)
+
+
+        # Filtrage des valeurs aberrantes
+        fact_delivery = fact_delivery[
+            (fact_delivery['delivery_days'] >= 0) &
+            (fact_delivery['delivery_days'] >= 365)
+        ]
+
+
+        delivery_metrics = fact_delivery.groupby('year_month')['delivery_days'].mean().reset_index()
+        delivery_metrics.columns = ['year_month', 'avg_delivery_days']
+        result['delivery_metrics'] = delivery_metrics
+        print(f' delivery_metrics: {len(delivery_metrics)} mois')
+
+
+        # Review
+        reviews = dataframes['order_reviews'].copy()
+        reviews = reviews.merge(orders[['order_id', 'order_purchase_timestamp']], on='order_id', how='left')
+        reviews['year_month'] = reviews['order_purchase_timestamp'].dt.to_period('M').astype(str)
+        reviews_monthly = reviews.groupby('year_month')['review_score'].mean().reset_index()
+        reviews_monthly.columns = ['year_month','avg_review_score']
+        result['reviews_monthly'] = reviews_monthly
+        print(' reviews_monthly:{len(reviews_monthly)} mois')
+
+
+        return result
 
 
 
