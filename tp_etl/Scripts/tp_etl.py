@@ -8,7 +8,7 @@ import sqlite3
 #DATA_DIR = 'sqlite_exports'  
 # Dossier de sortie
 OUTPUT_DIR = 'outputs'       
-Data_dir = os.getcwd()
+Data_dir = 'sqlite_exports'
 # EXTRACT - Lire les fichiers CSV
 def read_csv_file(file_name):
     """
@@ -109,6 +109,8 @@ def duplicate_remove(df, subset_col = None):
 
     if removed > 0:
         print(f" {removed} les doublons sont suprimes")
+    else:
+        print("Il n'y a pas de doublons")
 
     return df
 
@@ -306,7 +308,7 @@ def generer_rapport (dataframes , transformed_data):
 
     rapport= []
     rapport.append("=" * 70)
-    rapport.append("rapport ETL_Tp debutant")
+    rapport.append("Rapport ETL_Tp")
     rapport.append("=" * 70)
     rapport.append ("")
 
@@ -356,7 +358,7 @@ def main():
     Orchestre tout le processus ETL
     """
     print("\n" + "=" * 60)
-    print("* TP ETL debutant -PYTHON+Pandas".center)
+    print("* TP ETL -PYTHON+Pandas".center)
     print("*" * 55 + "\n")
 
     # Etape 1: Extraction
