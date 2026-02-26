@@ -1,0 +1,76 @@
+======================================================================
+Rapport ETL_Tp
+======================================================================
+
+ donneees sources
+----------------------------------------------------------------------
+
+customers:
+    - Lignes: 99,441
+    - Colonnes: 5
+    - Valeurs manquantes: 0
+
+orders:
+    - Lignes: 99,441
+    - Colonnes: 8
+    - Valeurs manquantes: 4,908
+
+geoloc:
+    - Lignes: 1,000,163
+    - Colonnes: 5
+    - Valeurs manquantes: 0
+
+products:
+    - Lignes: 32,951
+    - Colonnes: 9
+    - Valeurs manquantes: 2,448
+
+sellers:
+    - Lignes: 3,095
+    - Colonnes: 4
+    - Valeurs manquantes: 0
+
+translation:
+    - Lignes: 71
+    - Colonnes: 2
+    - Valeurs manquantes: 0
+
+order_items:
+    - Lignes: 112,650
+    - Colonnes: 7
+    - Valeurs manquantes: 0
+
+order_pymts:
+    - Lignes: 103,886
+    - Colonnes: 5
+    - Valeurs manquantes: 0
+
+order_reviews:
+    - Lignes: 99,224
+    - Colonnes: 7
+    - Valeurs manquantes: 145,903
+
+
+ Donnees transformees
+----------------------------------------------------------------------
+
+(dim_customers: 99,441 lignes
+
+(dim_sellers: 3,095 lignes
+
+(dim_products: 32,951 lignes
+
+(fact_order_items: 112,650 lignes
+
+(monthly_revenue: 24 lignes
+    - Total revenue: 15,843,553.24
+
+(top_categories: 10 lignes
+  → Top 1: health_beauty
+
+(delivery_metrics: 23 lignes
+    - Delai moyen: 14.2 jours
+
+(reviews_monthly: 25 lignes
+
+======================================================================
